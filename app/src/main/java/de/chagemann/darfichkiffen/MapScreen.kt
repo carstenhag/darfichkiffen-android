@@ -11,6 +11,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.rememberMarkerState
 import de.chagemann.darfichkiffen.ui.theme.DarfIchKiffenTheme
 
 @Composable
@@ -29,7 +30,7 @@ fun MapScreen(
         cameraPositionState = cameraPositionState
     ) {
         Marker(
-            position = singapore,
+            state = rememberMarkerState(position = singapore),
             title = "Singapore",
             snippet = "Marker in Singapore"
         )
