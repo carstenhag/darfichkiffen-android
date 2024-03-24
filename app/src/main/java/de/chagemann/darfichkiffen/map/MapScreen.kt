@@ -2,7 +2,11 @@ package de.chagemann.darfichkiffen.map
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemGesturesPadding
 import androidx.compose.material3.CircularProgressIndicator
@@ -30,9 +34,8 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapUiSettings
-import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.TileOverlay
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.google.maps.android.compose.rememberMarkerState
 import de.chagemann.darfichkiffen.R
 import de.chagemann.darfichkiffen.map.MapViewModel.SideEffect
 import de.chagemann.darfichkiffen.map.MapViewModel.UiAction
@@ -98,10 +101,9 @@ private fun MapScreenContent(
             cameraPositionState = cameraPositionState,
             uiSettings = mapUiSettings,
         ) {
-            Marker(
-                state = rememberMarkerState(position = startMapLocation),
-                title = "germany",
-                snippet = "Marker in germany"
+            TileOverlay(
+                tileProvider = MapConstants.tileProvider,
+                transparency = 0.2f
             )
         }
 
@@ -122,7 +124,10 @@ private fun LocationButton(
     modifier: Modifier = Modifier
 ) {
     val buttonModifier = Modifier
+        .padding(end = 16.dp, bottom = 32.dp) // this stuff is wrong
+        .consumeWindowInsets(PaddingValues(16.dp))
         .systemGesturesPadding()
+        .navigationBarsPadding()
         .shadow(2.dp, MaterialTheme.shapes.small)
         .background(MaterialTheme.colorScheme.background, MaterialTheme.shapes.small)
     val iconModifier = Modifier.size(24.dp)

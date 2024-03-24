@@ -3,6 +3,7 @@ package de.chagemann.darfichkiffen.map
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.UrlTileProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.chagemann.darfichkiffen.LocationProviderService
 import de.chagemann.darfichkiffen.toLatLng
@@ -15,6 +16,8 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+import java.net.MalformedURLException
+import java.net.URL
 import javax.inject.Inject
 
 object MapConstants {
@@ -22,6 +25,26 @@ object MapConstants {
         android.Manifest.permission.ACCESS_COARSE_LOCATION,
         android.Manifest.permission.ACCESS_FINE_LOCATION,
     )
+    val tileProvider = object : UrlTileProvider(256, 256) {
+        val radius = 100 // tiles for 100m radius
+
+        override fun getTileUrl(x: Int, y: Int, zoom: Int): URL? {
+            val url = "https://bubatzkarte.de/tiles/radius/$radius/$zoom/$x/$y.png"
+            return if (!checkTileExists(x, y, zoom)) {
+                null
+            } else try {
+                URL(url)
+            } catch (e: MalformedURLException) {
+                throw AssertionError(e)
+            }
+        }
+
+        private fun checkTileExists(x: Int, y: Int, zoom: Int): Boolean {
+            val minZoom = 4
+            val maxZoom = Int.MAX_VALUE
+            return zoom in minZoom..maxZoom
+        }
+    }
 }
 
 @HiltViewModel
