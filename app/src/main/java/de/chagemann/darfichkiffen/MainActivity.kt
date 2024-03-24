@@ -11,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import de.chagemann.darfichkiffen.map.MapScreen
 import de.chagemann.darfichkiffen.ui.theme.DarfIchKiffenTheme
 
 @AndroidEntryPoint
