@@ -30,7 +30,6 @@ import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapUiSettings
@@ -51,8 +50,6 @@ private val mapUiSettings: MapUiSettings =
         zoomControlsEnabled = false,
     )
 
-private val startMapLocation = LatLng(52.0, 10.45)
-
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MapScreen(
@@ -64,7 +61,7 @@ fun MapScreen(
     val locationPermissionState =
         rememberMultiplePermissionsState(permissions = MapConstants.locationPermissions)
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(startMapLocation, 6f)
+        position = CameraPosition.fromLatLngZoom(MapConstants.mapStartLocation, MapConstants.mapStartZoom)
     }
 
     val sideEffects = viewModel.effects

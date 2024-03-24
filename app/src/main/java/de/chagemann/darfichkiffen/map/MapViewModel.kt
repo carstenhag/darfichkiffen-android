@@ -21,6 +21,8 @@ import java.net.URL
 import javax.inject.Inject
 
 object MapConstants {
+    val mapStartLocation = LatLng(52.0, 10.45)
+    val mapStartZoom = 6f
     val locationPermissions = listOf(
         android.Manifest.permission.ACCESS_COARSE_LOCATION,
         android.Manifest.permission.ACCESS_FINE_LOCATION,
