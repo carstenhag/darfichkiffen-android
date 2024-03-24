@@ -82,7 +82,8 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
-
+    val accompanistVersion = "0.34.0"
+    implementation("com.google.accompanist:accompanist-permissions:$accompanistVersion")
 
     implementation("com.google.maps.android:maps-compose:4.3.3")
     implementation("com.google.android.gms:play-services-maps:18.2.0")
