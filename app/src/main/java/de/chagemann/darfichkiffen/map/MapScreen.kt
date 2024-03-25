@@ -37,6 +37,7 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.TileOverlay
 import com.google.maps.android.compose.rememberCameraPositionState
@@ -137,11 +138,52 @@ private fun MapScreenContent(
             modifier = Modifier.align(Alignment.BottomStart)
         )
 
+        MapTypeToggleButton(
+            state.value.mapProperties.mapType,
+            onAction = onAction,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
+
         LocationButton(
             isUpdatingLocation = state.value.isUpdatingLocation,
             isPermissionGranted = locationPermissionState?.isAnyLocationPermissionGranted() == true,
             onAction = onAction,
             modifier = Modifier.align(Alignment.BottomEnd)
+        )
+    }
+}
+
+@Composable
+fun MapTypeToggleButton(
+    mapType: MapType,
+    onAction: (UiAction) -> Unit,
+    modifier: Modifier
+) {
+    val newMapType = if (mapType == MapType.NORMAL) {
+        MapType.SATELLITE
+    } else {
+        MapType.NORMAL
+    }
+    val icon = if (mapType == MapType.NORMAL) {
+        R.drawable.map_type_normal
+    } else {
+        R.drawable.map_type_satellite
+    }
+    IconButton(
+        onClick = { onAction(UiAction.UpdateMapType(newMapType)) },
+        modifier = modifier
+            .padding(bottom = 32.dp) // this stuff is wrong
+            .consumeWindowInsets(PaddingValues(16.dp))
+            .systemGesturesPadding()
+            .navigationBarsPadding()
+            .shadow(2.dp, MaterialTheme.shapes.small)
+            .background(MaterialTheme.colorScheme.background, MaterialTheme.shapes.small)
+    ) {
+
+        Icon(
+            painter = painterResource(id = icon),
+            contentDescription = null,
+            modifier = Modifier.size(24.dp),
         )
     }
 }

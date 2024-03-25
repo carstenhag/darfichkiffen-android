@@ -93,6 +93,9 @@ class MapViewModel @Inject constructor(
             UiAction.ResetCameraBearing -> viewModelScope.launch {
                 _effects.send(SideEffect.UpdateCameraBearing(bearing = 0f))
             }
+            is UiAction.UpdateMapType -> _viewState.update {
+                it.copy(mapProperties = it.mapProperties.copy(mapType = uiAction.newMapType))
+            }
         }
     }
 
@@ -128,7 +131,7 @@ class MapViewModel @Inject constructor(
     sealed interface SideEffect {
         data object RequestLocationPermissions : SideEffect
         data class AnimateMapToPosition(val latLng: LatLng, val zoom: Float) : SideEffect
-        data class UpdateCameraBearing(val bearing: Float): SideEffect
+        data class UpdateCameraBearing(val bearing: Float) : SideEffect
     }
 
     sealed interface UiAction {
@@ -136,6 +139,7 @@ class MapViewModel @Inject constructor(
         data object RequestLocationPermissions : UiAction
         data object GrantLocationPermission : UiAction
         data object ResetCameraBearing : UiAction
+        data class UpdateMapType(val newMapType: MapType) : UiAction
     }
 
     private fun hasCoarseLocationPermission() =
