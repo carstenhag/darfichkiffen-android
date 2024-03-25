@@ -32,6 +32,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.TileOverlay
 import com.google.maps.android.compose.rememberCameraPositionState
@@ -47,6 +48,8 @@ private val mapUiSettings: MapUiSettings =
         compassEnabled = false,
         indoorLevelPickerEnabled = false,
         mapToolbarEnabled = false,
+        myLocationButtonEnabled = false,
+        tiltGesturesEnabled = false,
         zoomControlsEnabled = false,
     )
 
@@ -58,8 +61,17 @@ fun MapScreen(
 ) {
     val state = viewModel.viewState.collectAsState()
     val onAction = { uiAction: UiAction -> viewModel.onAction(uiAction) }
-    val locationPermissionState =
-        rememberMultiplePermissionsState(permissions = MapConstants.locationPermissions)
+    val locationPermissionState = rememberMultiplePermissionsState(
+        permissions = MapConstants.locationPermissions,
+        onPermissionsResult = { map ->
+            val anyPermissionGranted = map.any { entry ->
+                entry.key in MapConstants.locationPermissions && entry.value
+            }
+            if (anyPermissionGranted) {
+                onAction(UiAction.GrantLocationPermission)
+            }
+        }
+    )
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(MapConstants.mapStartLocation, MapConstants.mapStartZoom)
     }
@@ -71,9 +83,8 @@ fun MapScreen(
                 SideEffect.RequestLocationPermissions -> {
                     locationPermissionState.launchMultiplePermissionRequest()
                 }
-
                 is SideEffect.AnimateMapToPosition -> {
-                    val cameraUpdate = CameraUpdateFactory.newLatLngZoom(effect.latLng, 16f)
+                    val cameraUpdate = CameraUpdateFactory.newLatLngZoom(effect.latLng, effect.zoom)
                     cameraPositionState.animate(update = cameraUpdate)
                 }
             }
@@ -96,6 +107,7 @@ private fun MapScreenContent(
         GoogleMap(
             modifier = modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
+            properties = state.value.mapProperties,
             uiSettings = mapUiSettings,
         ) {
             TileOverlay(
@@ -138,7 +150,6 @@ private fun LocationButton(
                 CircularProgressIndicator(modifier = iconModifier, strokeWidth = 2.dp)
             }
         }
-
         isPermissionGranted -> {
             IconButton(
                 onClick = { onAction(UiAction.CenterOnCurrentLocation) },
@@ -151,7 +162,6 @@ private fun LocationButton(
                 )
             }
         }
-
         else -> {
             IconButton(
                 onClick = { onAction(UiAction.RequestLocationPermissions) },
@@ -184,7 +194,12 @@ fun MultiplePermissionsState.isAnyLocationPermissionGranted(): Boolean {
 private fun MapScreenPreview() {
     DarfIchKiffenTheme {
         MapScreenContent(
-            state = MutableStateFlow(ViewState(isUpdatingLocation = false)).collectAsState(),
+            state = MutableStateFlow(
+                ViewState(
+                    isUpdatingLocation = false,
+                    mapProperties = MapProperties()
+                )
+            ).collectAsState(),
             onAction = {},
             cameraPositionState = rememberCameraPositionState(),
             locationPermissionState = null,

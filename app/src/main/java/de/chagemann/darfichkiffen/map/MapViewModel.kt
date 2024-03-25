@@ -1,10 +1,16 @@
 package de.chagemann.darfichkiffen.map
 
+import android.content.Context
+import androidx.core.content.PermissionChecker
+import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.UrlTileProvider
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapType
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import de.chagemann.darfichkiffen.LocationProviderService
 import de.chagemann.darfichkiffen.toLatLng
 import kotlinx.coroutines.Job
@@ -15,7 +21,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
 import java.net.MalformedURLException
 import java.net.URL
 import javax.inject.Inject
@@ -32,7 +37,7 @@ object MapConstants {
 
         override fun getTileUrl(x: Int, y: Int, zoom: Int): URL? {
             val url = "https://bubatzkarte.de/tiles/radius/$radius/$zoom/$x/$y.png"
-            return if (!checkTileExists(x, y, zoom)) {
+            return if (!checkTileExists(zoom)) {
                 null
             } else try {
                 URL(url)
@@ -41,7 +46,7 @@ object MapConstants {
             }
         }
 
-        private fun checkTileExists(x: Int, y: Int, zoom: Int): Boolean {
+        private fun checkTileExists(zoom: Int): Boolean {
             val minZoom = 4
             val maxZoom = Int.MAX_VALUE
             return zoom in minZoom..maxZoom
@@ -51,15 +56,23 @@ object MapConstants {
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
-    private val json: Json,
+    @ApplicationContext private val applicationContext: Context,
     private val locationProviderService: LocationProviderService
 ) : ViewModel() {
 
-    private val _viewState = MutableStateFlow(
-        ViewState(
-            isUpdatingLocation = false
+    private val _viewState: MutableStateFlow<ViewState> by lazy {
+        val showMyLocation = hasCoarseLocationPermission()
+        MutableStateFlow(
+            ViewState(
+                isUpdatingLocation = false,
+                mapProperties = MapProperties(
+                    mapType = MapType.NORMAL,
+                    isMyLocationEnabled = showMyLocation
+                )
+            )
         )
-    )
+    }
+
     val viewState = _viewState.asStateFlow()
 
     private val _effects: Channel<SideEffect> = Channel()
@@ -70,9 +83,12 @@ class MapViewModel @Inject constructor(
     fun onAction(uiAction: UiAction) {
         when (uiAction) {
             UiAction.CenterOnCurrentLocation -> centerOnLocation()
-
             UiAction.RequestLocationPermissions -> viewModelScope.launch {
                 _effects.send(SideEffect.RequestLocationPermissions)
+            }
+            UiAction.GrantLocationPermission -> viewModelScope.launch {
+                _viewState.update { it.copy(mapProperties = it.mapProperties.copy(isMyLocationEnabled = true)) }
+                centerOnLocation()
             }
         }
     }
@@ -83,7 +99,12 @@ class MapViewModel @Inject constructor(
             val location = locationProviderService.awaitLastLocation()
             if (location != null) {
                 _viewState.update { it.copy(isUpdatingLocation = false) }
-                _effects.send(SideEffect.AnimateMapToPosition(latLng = location.toLatLng()))
+                val zoom = if (hasFineLocationPermission()) {
+                    16f
+                } else {
+                    13f
+                }
+                _effects.send(SideEffect.AnimateMapToPosition(latLng = location.toLatLng(), zoom = zoom))
             }
         }.also {
             it.invokeOnCompletion { job = null }
@@ -98,15 +119,23 @@ class MapViewModel @Inject constructor(
 
     data class ViewState(
         val isUpdatingLocation: Boolean,
+        val mapProperties: MapProperties,
     )
 
     sealed interface SideEffect {
         data object RequestLocationPermissions : SideEffect
-        data class AnimateMapToPosition(val latLng: LatLng) : SideEffect
+        data class AnimateMapToPosition(val latLng: LatLng, val zoom: Float) : SideEffect
     }
 
     sealed interface UiAction {
         data object CenterOnCurrentLocation : UiAction
         data object RequestLocationPermissions : UiAction
+        data object GrantLocationPermission : UiAction
     }
+
+    private fun hasCoarseLocationPermission() =
+        PermissionChecker.checkSelfPermission(applicationContext, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PERMISSION_GRANTED
+
+    private fun hasFineLocationPermission() =
+        PermissionChecker.checkSelfPermission(applicationContext, android.Manifest.permission.ACCESS_FINE_LOCATION) == PERMISSION_GRANTED
 }
