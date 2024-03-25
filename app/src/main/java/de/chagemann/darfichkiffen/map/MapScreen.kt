@@ -1,5 +1,8 @@
 package de.chagemann.darfichkiffen.map
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,6 +22,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -87,6 +91,15 @@ fun MapScreen(
                     val cameraUpdate = CameraUpdateFactory.newLatLngZoom(effect.latLng, effect.zoom)
                     cameraPositionState.animate(update = cameraUpdate)
                 }
+                is SideEffect.UpdateCameraBearing -> {
+                    val cameraUpdate = CameraUpdateFactory.newCameraPosition(
+                        CameraPosition.Builder()
+                            .target(cameraPositionState.position.target)
+                            .zoom(cameraPositionState.position.zoom)
+                            .bearing(effect.bearing).build()
+                    )
+                    cameraPositionState.animate(update = cameraUpdate)
+                }
             }
         }
     }
@@ -116,12 +129,56 @@ private fun MapScreenContent(
             )
         }
 
+        CompassButton(
+            cameraPositionState.position.bearing,
+            onClick = {
+                onAction(UiAction.ResetCameraBearing)
+            },
+            modifier = Modifier.align(Alignment.BottomStart)
+        )
+
         LocationButton(
             isUpdatingLocation = state.value.isUpdatingLocation,
             isPermissionGranted = locationPermissionState?.isAnyLocationPermissionGranted() == true,
             onAction = onAction,
             modifier = Modifier.align(Alignment.BottomEnd)
         )
+    }
+}
+
+@Composable
+fun CompassButton(
+    bearing: Float,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val visible = bearing % 360 !in -2f..2f
+    AnimatedVisibility(
+        visible = visible,
+        modifier = modifier,
+        enter = fadeIn(),
+        exit = fadeOut(),
+    ) {
+        IconButton(
+            onClick = onClick,
+            modifier = Modifier
+                .padding(start = 16.dp, bottom = 32.dp) // this stuff is wrong
+                .consumeWindowInsets(PaddingValues(16.dp))
+                .systemGesturesPadding()
+                .navigationBarsPadding()
+                .shadow(2.dp, MaterialTheme.shapes.small)
+                .background(MaterialTheme.colorScheme.background, MaterialTheme.shapes.small)
+        ) {
+            val bearingIconOffset = -45f // the icon has to be turned to face north
+            val realBearing = bearing + bearingIconOffset
+            Icon(
+                painter = painterResource(id = R.drawable.compass),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(24.dp)
+                    .rotate(realBearing),
+            )
+        }
     }
 }
 
