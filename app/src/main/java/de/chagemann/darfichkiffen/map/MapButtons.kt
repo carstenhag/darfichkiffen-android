@@ -17,14 +17,23 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.maps.android.compose.MapType
 import de.chagemann.darfichkiffen.R
+import de.chagemann.darfichkiffen.ui.theme.DarfIchKiffenTheme
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun TileSettingToggle(
@@ -37,16 +46,33 @@ fun TileSettingToggle(
     } else {
         TileSetting.Meters100
     }
+
+    var isCurrentlyChangingToggle by remember {
+        mutableStateOf(false)
+    }
+
+    LaunchedEffect(tileSetting) {
+        isCurrentlyChangingToggle = true
+        launch {
+            delay(1000)
+            isCurrentlyChangingToggle = false
+        }
+    }
+
     IconButton(
         onClick = { onAction(MapViewModel.UiAction.UpdateTileSetting(newTileSetting)) },
         modifier = modifier
             .shadow(2.dp, MaterialTheme.shapes.small)
             .background(MaterialTheme.colorScheme.background, MaterialTheme.shapes.small)
     ) {
-        Text(
-            text = stringResource(id = tileSetting.title),
-            style = MaterialTheme.typography.bodySmall
-        )
+        if (isCurrentlyChangingToggle) {
+            CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+        } else {
+            Text(
+                text = stringResource(id = tileSetting.title),
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
     }
 }
 
@@ -96,7 +122,7 @@ fun CompassButton(
         IconButton(
             onClick = onClick,
             modifier = Modifier
-                .padding(start = 16.dp, bottom = 32.dp) // this stuff is wrong
+                .padding(start = MapUiConstants.horizontalContentMargin, bottom = MapUiConstants.verticalContentMargin) // this stuff is wrong
                 .consumeWindowInsets(PaddingValues(16.dp))
                 .systemGesturesPadding()
                 .navigationBarsPadding()
@@ -133,7 +159,7 @@ fun LocationButton(
     modifier: Modifier = Modifier
 ) {
     val buttonModifier = Modifier
-        .padding(end = 16.dp, bottom = 32.dp) // this stuff is wrong
+        .padding(end = MapUiConstants.horizontalContentMargin, bottom = MapUiConstants.verticalContentMargin) // this stuff is wrong
         .consumeWindowInsets(PaddingValues(16.dp))
         .systemGesturesPadding()
         .navigationBarsPadding()
@@ -178,5 +204,37 @@ fun LocationButton(
                 )
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun TileSettingTogglePreview() {
+    DarfIchKiffenTheme {
+        TileSettingToggle(tileSetting = TileSetting.Meters100, onAction = {})
+    }
+}
+
+@Preview
+@Composable
+private fun LocationButtonLoadingPreview() {
+    DarfIchKiffenTheme {
+        LocationButton(isUpdatingLocation = true, isPermissionGranted = false, onAction = {})
+    }
+}
+
+@Preview
+@Composable
+private fun LocationButtonGrantedPreview() {
+    DarfIchKiffenTheme {
+        LocationButton(isUpdatingLocation = false, isPermissionGranted = true, onAction = {})
+    }
+}
+
+@Preview
+@Composable
+private fun LocationButtonNotGrantedPreview() {
+    DarfIchKiffenTheme {
+        LocationButton(isUpdatingLocation = false, isPermissionGranted = false, onAction = {})
     }
 }

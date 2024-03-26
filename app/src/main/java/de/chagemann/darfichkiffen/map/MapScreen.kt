@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.systemGesturesPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -16,6 +17,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -37,15 +39,20 @@ import de.chagemann.darfichkiffen.map.MapViewModel.ViewState
 import de.chagemann.darfichkiffen.ui.theme.DarfIchKiffenTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 
-private val mapUiSettings: MapUiSettings =
-    MapUiSettings(
-        compassEnabled = false,
-        indoorLevelPickerEnabled = false,
-        mapToolbarEnabled = false,
-        myLocationButtonEnabled = false,
-        tiltGesturesEnabled = false,
-        zoomControlsEnabled = false,
-    )
+object MapUiConstants {
+    val defaultMapUiSettings: MapUiSettings =
+        MapUiSettings(
+            compassEnabled = false,
+            indoorLevelPickerEnabled = false,
+            mapToolbarEnabled = false,
+            myLocationButtonEnabled = false,
+            tiltGesturesEnabled = false,
+            zoomControlsEnabled = false,
+        )
+    val horizontalContentMargin = 16.dp
+    val verticalContentMargin = 32.dp
+}
+
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -111,13 +118,21 @@ private fun MapScreenContent(
             modifier = modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
             properties = state.value.mapProperties,
-            uiSettings = mapUiSettings,
+            uiSettings = MapUiConstants.defaultMapUiSettings,
         ) {
             TileOverlay(
                 tileProvider = state.value.tileSetting.tileProvider,
                 transparency = 0.2f
             )
         }
+
+        InfoBanner(
+            text = stringResource(id = state.value.tileSetting.explanation),
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .systemBarsPadding()
+                .padding(horizontal = MapUiConstants.horizontalContentMargin, vertical = MapUiConstants.verticalContentMargin)
+        )
 
         CompassButton(
             cameraPositionState.position.bearing,
@@ -130,7 +145,7 @@ private fun MapScreenContent(
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 32.dp) // this stuff is wrong
+                .padding(bottom = MapUiConstants.verticalContentMargin) // this stuff is wrong
                 .consumeWindowInsets(PaddingValues(16.dp))
                 .systemGesturesPadding()
                 .navigationBarsPadding()
@@ -182,26 +197,3 @@ private fun MapScreenPreview() {
     }
 }
 
-@Preview
-@Composable
-private fun LocationButtonLoadingPreview() {
-    DarfIchKiffenTheme {
-        LocationButton(isUpdatingLocation = true, isPermissionGranted = false, onAction = {})
-    }
-}
-
-@Preview
-@Composable
-private fun LocationButtonGrantedPreview() {
-    DarfIchKiffenTheme {
-        LocationButton(isUpdatingLocation = false, isPermissionGranted = true, onAction = {})
-    }
-}
-
-@Preview
-@Composable
-private fun LocationButtonNotGrantedPreview() {
-    DarfIchKiffenTheme {
-        LocationButton(isUpdatingLocation = false, isPermissionGranted = false, onAction = {})
-    }
-}

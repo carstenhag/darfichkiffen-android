@@ -63,10 +63,11 @@ object MapConstants {
 
 enum class TileSetting(
     val tileProvider: TileProvider,
-    @StringRes val title: Int
+    @StringRes val title: Int,
+    @StringRes val explanation: Int,
 ) {
-    Meters25(MapConstants.tileProvider25Meters, R.string.tile_setting_25_meters_title),
-    Meters100(MapConstants.tileProvider100Meters, R.string.tile_setting_100_meters_title)
+    Meters25(MapConstants.tileProvider25Meters, R.string.tile_setting_25_meters_title, R.string.tile_setting_25_meters_explanation),
+    Meters100(MapConstants.tileProvider100Meters, R.string.tile_setting_100_meters_title, R.string.tile_setting_100_meters_explanation)
 }
 
 @HiltViewModel
