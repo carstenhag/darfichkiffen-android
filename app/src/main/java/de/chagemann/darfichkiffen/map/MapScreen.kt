@@ -213,13 +213,22 @@ fun CompassButton(
         ) {
             val bearingIconOffset = -45f // the icon has to be turned to face north
             val realBearing = bearing + bearingIconOffset
-            Icon(
-                painter = painterResource(id = R.drawable.compass),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(24.dp)
-                    .rotate(realBearing),
-            )
+            val iconModifier = Modifier
+                .size(24.dp)
+                .rotate(realBearing)
+            Box {
+                Icon(
+                    painter = painterResource(id = R.drawable.compass),
+                    contentDescription = null,
+                    modifier = iconModifier
+                )
+                Icon(
+                    painter = painterResource(id = R.drawable.compass_needle_north),
+                    contentDescription = null,
+                    modifier = iconModifier,
+                    tint = MaterialTheme.colorScheme.error
+                )
+            }
         }
     }
 }
