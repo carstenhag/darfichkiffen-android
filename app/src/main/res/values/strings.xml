@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Darf ich kiffen</string>
+    <string name="tile_setting_25_meters_title">25m</string>
+    <string name="tile_setting_100_meters_title">100m</string>
 </resources>

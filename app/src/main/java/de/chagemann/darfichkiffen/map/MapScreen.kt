@@ -1,30 +1,21 @@
 package de.chagemann.darfichkiffen.map
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemGesturesPadding
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -37,11 +28,9 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
-import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.TileOverlay
 import com.google.maps.android.compose.rememberCameraPositionState
-import de.chagemann.darfichkiffen.R
 import de.chagemann.darfichkiffen.map.MapViewModel.SideEffect
 import de.chagemann.darfichkiffen.map.MapViewModel.UiAction
 import de.chagemann.darfichkiffen.map.MapViewModel.ViewState
@@ -125,7 +114,7 @@ private fun MapScreenContent(
             uiSettings = mapUiSettings,
         ) {
             TileOverlay(
-                tileProvider = MapConstants.tileProvider,
+                tileProvider = state.value.tileSetting.tileProvider,
                 transparency = 0.2f
             )
         }
@@ -138,11 +127,24 @@ private fun MapScreenContent(
             modifier = Modifier.align(Alignment.BottomStart)
         )
 
-        MapTypeToggleButton(
-            state.value.mapProperties.mapType,
-            onAction = onAction,
-            modifier = Modifier.align(Alignment.BottomCenter)
-        )
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 32.dp) // this stuff is wrong
+                .consumeWindowInsets(PaddingValues(16.dp))
+                .systemGesturesPadding()
+                .navigationBarsPadding()
+        ) {
+            TileSettingToggle(
+                tileSetting = state.value.tileSetting,
+                onAction = onAction,
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            MapTypeToggle(
+                state.value.mapProperties.mapType,
+                onAction = onAction,
+            )
+        }
 
         LocationButton(
             isUpdatingLocation = state.value.isUpdatingLocation,
@@ -150,142 +152,6 @@ private fun MapScreenContent(
             onAction = onAction,
             modifier = Modifier.align(Alignment.BottomEnd)
         )
-    }
-}
-
-@Composable
-fun MapTypeToggleButton(
-    mapType: MapType,
-    onAction: (UiAction) -> Unit,
-    modifier: Modifier
-) {
-    val newMapType = if (mapType == MapType.NORMAL) {
-        MapType.SATELLITE
-    } else {
-        MapType.NORMAL
-    }
-    val icon = if (mapType == MapType.NORMAL) {
-        R.drawable.map_type_normal
-    } else {
-        R.drawable.map_type_satellite
-    }
-    IconButton(
-        onClick = { onAction(UiAction.UpdateMapType(newMapType)) },
-        modifier = modifier
-            .padding(bottom = 32.dp) // this stuff is wrong
-            .consumeWindowInsets(PaddingValues(16.dp))
-            .systemGesturesPadding()
-            .navigationBarsPadding()
-            .shadow(2.dp, MaterialTheme.shapes.small)
-            .background(MaterialTheme.colorScheme.background, MaterialTheme.shapes.small)
-    ) {
-
-        Icon(
-            painter = painterResource(id = icon),
-            contentDescription = null,
-            modifier = Modifier.size(24.dp),
-        )
-    }
-}
-
-@Composable
-fun CompassButton(
-    bearing: Float,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val visible = bearing % 360 !in -2f..2f
-    AnimatedVisibility(
-        visible = visible,
-        modifier = modifier,
-        enter = fadeIn(),
-        exit = fadeOut(),
-    ) {
-        IconButton(
-            onClick = onClick,
-            modifier = Modifier
-                .padding(start = 16.dp, bottom = 32.dp) // this stuff is wrong
-                .consumeWindowInsets(PaddingValues(16.dp))
-                .systemGesturesPadding()
-                .navigationBarsPadding()
-                .shadow(2.dp, MaterialTheme.shapes.small)
-                .background(MaterialTheme.colorScheme.background, MaterialTheme.shapes.small)
-        ) {
-            val bearingIconOffset = -45f // the icon has to be turned to face north
-            val realBearing = bearing + bearingIconOffset
-            val iconModifier = Modifier
-                .size(24.dp)
-                .rotate(realBearing)
-            Box {
-                Icon(
-                    painter = painterResource(id = R.drawable.compass),
-                    contentDescription = null,
-                    modifier = iconModifier
-                )
-                Icon(
-                    painter = painterResource(id = R.drawable.compass_needle_north),
-                    contentDescription = null,
-                    modifier = iconModifier,
-                    tint = MaterialTheme.colorScheme.error
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun LocationButton(
-    isUpdatingLocation: Boolean,
-    isPermissionGranted: Boolean,
-    onAction: (UiAction) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val buttonModifier = Modifier
-        .padding(end = 16.dp, bottom = 32.dp) // this stuff is wrong
-        .consumeWindowInsets(PaddingValues(16.dp))
-        .systemGesturesPadding()
-        .navigationBarsPadding()
-        .shadow(2.dp, MaterialTheme.shapes.small)
-        .background(MaterialTheme.colorScheme.background, MaterialTheme.shapes.small)
-    val iconModifier = Modifier.size(24.dp)
-
-    when {
-        isUpdatingLocation -> {
-            IconButton(
-                onClick = { },
-                modifier = modifier.then(buttonModifier)
-            ) {
-                CircularProgressIndicator(modifier = iconModifier, strokeWidth = 2.dp)
-            }
-        }
-        isPermissionGranted -> {
-            IconButton(
-                onClick = { onAction(UiAction.CenterOnCurrentLocation) },
-                modifier = modifier.then(buttonModifier)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.my_location_enabled),
-                    contentDescription = null,
-                    modifier = iconModifier,
-                )
-            }
-        }
-        else -> {
-            IconButton(
-                onClick = { onAction(UiAction.RequestLocationPermissions) },
-                modifier = modifier
-                    .then(buttonModifier)
-                    .systemGesturesPadding()
-                    .background(MaterialTheme.colorScheme.background, MaterialTheme.shapes.small)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.my_location_disabled),
-                    contentDescription = null,
-                    modifier = iconModifier,
-                    tint = MaterialTheme.colorScheme.error,
-                )
-            }
-        }
     }
 }
 
@@ -305,8 +171,9 @@ private fun MapScreenPreview() {
             state = MutableStateFlow(
                 ViewState(
                     isUpdatingLocation = false,
-                    mapProperties = MapProperties()
-                )
+                    mapProperties = MapProperties(),
+                    tileSetting = TileSetting.Meters100
+                ),
             ).collectAsState(),
             onAction = {},
             cameraPositionState = rememberCameraPositionState(),
