@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Darf ich kiffen</string>
+    <string name="app_name">Darf ich kiffen?</string>
     <string name="tile_setting_25_meters_title">25m</string>
     <string name="tile_setting_100_meters_title">100m</string>
     <string name="tile_setting_25_meters_explanation">Diese Ansicht ist besonders geeignet um besser beurteilen zu können, von welchem Gebäude bzw. Gebiet die Beschränkung ausgeht.\nHier beträgt der Radius 25 Meter. Achtung: Diese Ansicht ist nur eine sehr grobe Orientierungshilfe.</string>
