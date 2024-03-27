@@ -33,6 +33,7 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.TileOverlay
 import com.google.maps.android.compose.rememberCameraPositionState
+import de.chagemann.darfichkiffen.DayNightPreviews
 import de.chagemann.darfichkiffen.map.MapViewModel.SideEffect
 import de.chagemann.darfichkiffen.map.MapViewModel.UiAction
 import de.chagemann.darfichkiffen.map.MapViewModel.ViewState
@@ -178,7 +179,7 @@ fun MultiplePermissionsState.isAnyLocationPermissionGranted(): Boolean {
 }
 
 @OptIn(ExperimentalPermissionsApi::class)
-@Preview(showBackground = true)
+@DayNightPreviews
 @Composable
 private fun MapScreenPreview() {
     DarfIchKiffenTheme {

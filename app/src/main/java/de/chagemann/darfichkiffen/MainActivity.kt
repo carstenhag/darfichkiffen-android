@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            DarfIchKiffenTheme {
+            DarfIchKiffenTheme(darkTheme = false) {
                 ScreenNavHost()
             }
         }
