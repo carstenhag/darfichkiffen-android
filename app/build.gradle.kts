@@ -1,9 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-    kotlin("plugin.serialization")
-    id("com.google.devtools.ksp")
-    id("com.google.dagger.hilt.android")
+    alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
 }
 
 android {
@@ -44,7 +44,8 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.10"
+        // https://developer.android.com/jetpack/androidx/releases/compose-kotlin
+        kotlinCompilerExtensionVersion = "1.5.11"
     }
     packaging {
         resources {
@@ -54,42 +55,34 @@ android {
 }
 
 dependencies {
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
-
-    implementation("com.squareup.retrofit2:retrofit:2.10.0")
-    implementation("com.squareup.retrofit2:converter-kotlinx-serialization:2.10.0")
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
-
-    implementation("com.google.dagger:hilt-android:2.51")
-    implementation(libs.play.services.location)
-    ksp("com.google.dagger:hilt-android-compiler:2.51")
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
-
-    val navVersion = "2.7.6"
-    implementation("androidx.navigation:navigation-compose:$navVersion")
-
-    implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.7")
-
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
-
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
-    val accompanistVersion = "0.34.0"
-    implementation("com.google.accompanist:accompanist-permissions:$accompanistVersion")
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.kotlinx.collections.immutable)
+    implementation(libs.accompanist.permissions)
+    implementation(libs.kotlinx.collections.immutable)
 
-    implementation("com.google.maps.android:maps-compose:4.3.3")
-    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.kotlinx.serialization)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging.interceptor)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.coroutines.android)
 
-
+    implementation(libs.play.services.location)
+    implementation(libs.maps.compose)
+    implementation(libs.play.services.maps)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
