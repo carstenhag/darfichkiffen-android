@@ -2,7 +2,7 @@
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.jetbrains.kotlin.android) apply false
-    kotlin("plugin.serialization") version "1.9.22" apply false
-    id("com.google.devtools.ksp") version "1.9.22-1.0.18" apply false
+    kotlin("plugin.serialization") version "1.9.23" apply false
+    id("com.google.devtools.ksp") version "1.9.23-1.0.19" apply false
     id("com.google.dagger.hilt.android") version "2.51" apply false
 }
