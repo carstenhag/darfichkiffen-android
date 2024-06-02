@@ -10,11 +10,11 @@ hilt = "2.51.1"
 hiltNavigationCompose = "1.2.0"
 junit = "4.13.2"
 junitVersion = "1.1.5"
-kotlin = "1.9.23"
+kotlin = "2.0.0"
 kotlinxCollectionsImmutable = "0.3.7"
 kotlinxCoroutines = "1.8.1"
 kotlinxSerialization = "1.6.3"
-ksp = "1.9.23-1.0.20"
+ksp = "2.0.0-1.0.21"
 lifecycleRuntimeKtx = "2.8.1"
 mapsCompose = "5.0.1"
 navigationCompose = "2.7.7"
@@ -58,7 +58,7 @@ retrofit-converter-kotlinx-serialization = { module = "com.squareup.retrofit2:co
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
