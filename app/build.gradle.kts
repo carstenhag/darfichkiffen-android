@@ -9,7 +9,7 @@ plugins {
 
 android {
     namespace = "de.chagemann.darfichkiffen"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "de.chagemann.darfichkiffen"
