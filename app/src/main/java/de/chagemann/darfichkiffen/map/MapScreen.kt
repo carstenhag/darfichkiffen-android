@@ -82,7 +82,7 @@ fun MapScreen(
         position = CameraPosition.fromLatLngZoom(MapConstants.mapStartLocation, MapConstants.mapStartZoom)
     }
 
-    if (Build.VERSION.SDK_INT >= VERSION_CODES.ECLAIR_0_1) {
+    if (Build.VERSION.SDK_INT >= VERSION_CODES.BASE) {
         Toast.makeText(LocalContext.current, "", Toast.LENGTH_SHORT)
     }
 
