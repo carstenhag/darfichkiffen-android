@@ -21,8 +21,7 @@ jobs:
           cache: gradle
       - name: Build with Gradle
         run: chmod +x gradlew && ./gradlew build
-      - uses: yutailang0119/action-android-lint@v4
+      - name: Check and report lint results
+        uses: hidakatsuya/action-report-android-lint@v1.2.2
         with:
-          report-path: build/reports/*.xml # Support glob patterns by https://www.npmjs.com/package/@actions/glob
-          ignore-warnings: true # Ignore Lint Warnings
-        continue-on-error: false # If annotations contain error of severity, action-android-lint exit 1.
+          result-path: 'app/build/reports/lint-results-debug.xml'
