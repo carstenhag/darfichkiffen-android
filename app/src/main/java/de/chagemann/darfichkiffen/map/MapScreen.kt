@@ -1,5 +1,8 @@
 package de.chagemann.darfichkiffen.map
 
+import android.os.Build
+import android.os.Build.VERSION_CODES
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,6 +20,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -76,6 +80,10 @@ fun MapScreen(
     )
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(MapConstants.mapStartLocation, MapConstants.mapStartZoom)
+    }
+
+    if (Build.VERSION.SDK_INT >= VERSION_CODES.ECLAIR_0_1) {
+        Toast.makeText(LocalContext.current, "", Toast.LENGTH_SHORT)
     }
 
     val sideEffects = viewModel.effects
