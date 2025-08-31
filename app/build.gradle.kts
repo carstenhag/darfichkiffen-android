@@ -9,14 +9,14 @@ plugins {
 
 android {
     namespace = "de.chagemann.darfichkiffen"
-    compileSdk = 35
 
     defaultConfig {
         applicationId = "de.chagemann.darfichkiffen"
         minSdk = 26
-        targetSdk = 34
-        versionCode = 2
-        versionName = "1.1"
+        targetSdk = 36
+        compileSdk = 36
+        versionCode = 3
+        versionName = "1.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -34,12 +34,15 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
         isCoreLibraryDesugaringEnabled = true
     }
-    kotlinOptions {
-        jvmTarget = "17"
+    kotlin {
+        jvmToolchain { 21 }
+    }
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of("21"))
+        }
     }
     buildFeatures {
         compose = true
